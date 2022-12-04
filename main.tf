@@ -126,6 +126,7 @@ module "eks" {
       launch_template_name   = ""
 
       ebs_optimized = true
+      disk_size = 75
 
       block_device_mappings = {
         xvda = {
@@ -193,17 +194,17 @@ module "security_groups" {
   tags = local.tags
 }
 
-module "cache" {
-  source = "./modules/aws-elasticache-redis"
+# module "cache" {
+#   source = "./modules/aws-elasticache-redis"
 
-  name               = local.name
-  node_type          = var.redis_node_type
-  security_group_ids = [module.security_groups["cache"].id]
-  subnet_ids         = module.vpc.private_subnets
-  nodes_num          = var.redis_nodes_num
+#   name               = local.name
+#   node_type          = var.redis_node_type
+#   security_group_ids = [module.security_groups["cache"].id]
+#   subnet_ids         = module.vpc.private_subnets
+#   nodes_num          = var.redis_nodes_num
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
 module "aws_load_balancer_controller" {
   source        = "./modules/helm-aws-alb-controller"
@@ -222,4 +223,24 @@ module "metrics-server" {
   source        = "./modules/helm-metrics-server"
   chart_version = var.helm_metrics_server_version
   replica_count = var.helm_metrics_server_replicas
+}
+
+module "aws_ebs_driver" {
+  source        = "./modules/helm-aws-ebs-driver"
+  cluster_name               = module.eks.cluster_id
+  oidc_eks_url               = module.eks.oidc_provider
+  oidc_eks_arn               = module.eks.oidc_provider_arn
+  tags = local.tags
+}
+
+module "cluster_autoscaler" {
+  source                      = "./modules/helm-cluster-autoscaler"
+  chart_version               = "9.13.1"
+  cluster_region              = local.region
+  namespace                   = "kube-system"
+  cluster_name                = module.eks.cluster_id
+  oidc_eks_url                = module.eks.oidc_provider
+  oidc_eks_arn                = module.eks.oidc_provider_arn
+  tags = local.tags
+  
 }

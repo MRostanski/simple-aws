@@ -1,0 +1,45 @@
+image:
+  repository: 602401143452.dkr.ecr.eu-central-1.amazonaws.com/eks/aws-ebs-csi-driver # https://docs.aws.amazon.com/eks/latest/userguide/add-ons-images.html
+
+controller:
+  podAnnotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 32m
+      memory: 32Mi
+
+node:
+  resources:
+    limits:
+      cpu: 10m
+      memory: 32Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+storageClasses:
+- name: ebs-sc
+  # annotation metadata
+  # annotations:
+  #   storageclass.kubernetes.io/is-default-class: "true"
+  # label metadata
+  labels:
+    origin: ebs-driver
+  # defaults to WaitForFirstConsumer
+  volumeBindingMode: WaitForFirstConsumer
+  # defaults to Delete
+  reclaimPolicy: Retain
+  parameters:
+    encrypted: "true"
+    type: gp3
+  allowVolumeExpansion: true
+
+
+  # set {
+  #   name = "controller.podAnnotations.cluster-autoscaler\\.kubernetes\\.io/safe-to-evict"
+  #   value = "true"
+  # }

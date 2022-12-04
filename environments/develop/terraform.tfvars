@@ -9,7 +9,7 @@ vpc_public_subnet_cidrs_list  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
 vpc_private_subnet_cidrs_list = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 
 vpc_enable_nat = true
-vpc_single_nat = false # cost control
+vpc_single_nat = true # cost control
 
 # EKS
 
@@ -24,8 +24,8 @@ eks_ebs_iops            = 3000
 eks_ebs_throughput      = 150
 
 eks_primary_group_min     = 1
-eks_primary_group_max     = 10
-eks_primary_group_desired = 1
+eks_primary_group_max     = 20
+eks_primary_group_desired = 3
 
 # cache
 
